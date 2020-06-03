@@ -63,11 +63,11 @@ void tree::preoeder(int tem_code,int tem_len)
         if(right_tree) right_tree->preoeder((tem_code<<1)|1,tem_len+1);
 }
 
-void haffman::read(QString s)//??????? r
+void haffman::read(QString s)//读入
 {
         FILE *tem;
         int tem1=0;
-        strcpy(first_name,s.toLocal8Bit().data());
+        strcpy(first_name,s.toLocal8Bit().data());//转换字符串
         tem=fopen(first_name,"rb");
         if(tem==NULL)
         {
@@ -84,7 +84,7 @@ void haffman::read(QString s)//??????? r
         {
                 tem1=fread(tem2,sizeof(char),1024,tem);
                 lenth+=tem1;
-                if(lenth>10*1024*1024)
+                if(lenth>10*1024*1024)//1m=1024kb 1kb=1024b
                 {
                         lenth=10*1024*1024;
                         break;
@@ -96,7 +96,7 @@ void haffman::read(QString s)//??????? r
         origin_size=tem3.size();
 }
 
-void haffman::new_sort(tree *a[],int b,int e)//??
+void haffman::new_sort(tree *a[],int b,int e)//快排原理
 {
         if(b>=e) return;
         tree *tem;
@@ -113,7 +113,7 @@ void haffman::new_sort(tree *a[],int b,int e)//??
         new_sort(a,right+1,e);
 }
 
-void haffman::count()//????
+void haffman::count()//计算频率
 {
         bas_len=0;
         char *s=r;
@@ -129,7 +129,7 @@ void haffman::count()//????
                                 break;
                         }
                 }
-                if(sym)//new
+                if(sym)//新的字符
                 {
                         bas[j]=new tree;
                         bas[j]->data=*s;
@@ -140,7 +140,7 @@ void haffman::count()//????
         }
 }
 
-void haffman::make_haffman()//?????????
+void haffman::make_haffman()
 {
         tree *tem[bas_len];
         memcpy(tem,bas,sizeof(tree*)*bas_len);
@@ -156,10 +156,10 @@ void haffman::make_haffman()//?????????
                 tem[num+1]=haff_root;
                 ++num;
         }
-        haff_root->preoeder(0,0);//haffman ??
+        haff_root->preoeder(0,0);//haffman 序列形成
 }
 
-void haffman::wbit(int i)//????
+void haffman::wbit(int i)
 {
         buffer[max_bu]=buffer[max_bu]|(i<<bu);
         ++bu;
@@ -170,11 +170,11 @@ void haffman::wbit(int i)//????
         }
 }
 
-void haffman::zip()//????????
+void haffman::zip()//压缩字符串到缓冲区
 {
      max_bu=bu=0;
     char *s=r;
-    for(int i=0;i<lenth;++i)    //Ñ¹ËõÄÚÈÝµ½buffer,Ö±µ½ r ÄÚÈÝ½áÊø
+    for(int i=0;i<lenth;++i)    //压缩内容到buffer,直到 r 内容结束
     {
         int j=0;
         for(j=0;j<bas_len;++j)
@@ -189,7 +189,7 @@ void haffman::zip()//????????
     }
 }
 
-void haffman::write(QString path) //???????
+void haffman::write(QString path) //缓冲区写入文件
 {
         FILE *tem;
         char s[100];
@@ -198,7 +198,7 @@ void haffman::write(QString path) //???????
         {
             if(path[i]=='.') {num2=i;break;}
         }
-        formulate=path.right(path.length()-num2);
+        formulate=path.right(path.length()-num2);//截取原来的文件格式保存起来
         path=path.left(num2);
         path+=".zip";
         strcpy(s,path.toLocal8Bit().data());
@@ -231,16 +231,16 @@ void haffman::savecode()
         }
         char s1[10];
         strcpy(s1,formulate.toLatin1().data());
-        fprintf(tem,"%s\n",s1);
-        fprintf(tem,"%d %d\n",max_bu,bu);
-        for(int i=0;i<bas_len;++i)
+        fprintf(tem,"%s\n",s1);//保存文件格式
+        fprintf(tem,"%d %d\n",max_bu,bu);//保存缓冲区大小
+        for(int i=0;i<bas_len;++i)//保存字符 编码 编码长度
         {
                 fprintf(tem,"%d %d %d\n",bas[i]->data,bas[i]->code,bas[i]->code_len);
         }
         fclose(tem);
 }
 
-void haffman::readbuffer(QString path)
+void haffman::readbuffer(QString path)//读取文件内容到缓冲区
 {
         read(path);
         memcpy(buffer,r,lenth*sizeof(char));
@@ -257,9 +257,9 @@ void haffman::readcode()
         bas_len=0;
         char s1[10];
         fscanf(tem,"%s",&s1);
-        formulate=s1;
-        fscanf(tem,"%d %d",&max_bu,&bu);
-        while(!feof(tem))
+        formulate=s1;//读取文件格式
+        fscanf(tem,"%d %d",&max_bu,&bu);//读取缓冲区大小
+        while(!feof(tem))//读取字符 编码 编码长度
         {
                 bas[bas_len]=new tree;
                 if(fscanf(tem,"%d %d %d",&bas[bas_len]->data,&bas[bas_len]->code,&bas[bas_len]->code_len)==3) ++bas_len;
@@ -287,7 +287,7 @@ void haffman::unzip(QString path)
 
                 return;
         }
-        while(tem1<max_bu||(tem1==max_bu&&i<bu))
+        while(tem1<max_bu||(tem1==max_bu&&i<bu))//解压,直到缓冲区结束
         {
                 c=c<<1;
                 c|=1&(buffer[tem1]>>i);
@@ -295,7 +295,7 @@ void haffman::unzip(QString path)
                 if(i>=8)
                 {
                         i=0;
-                        ++tem1;
+                        ++tem1;//bit++
                 }
                 ++len;
                 for(int j=0;j<bas_len;++j)
